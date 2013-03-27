@@ -304,25 +304,25 @@ define(['chai', 'underscore', 'underscore.extras'], function(chai) {
 			_.isEmpty(null).should.equal(true);
 		});
 		it('should return true for empty object', function() {
-			_.isEmpty({});
+			_.isEmpty({}).should.equal(true);
 		});
 		it('should return true for empty array', function() {
-			_.isEmpty([]);
+			_.isEmpty([]).should.equal(true);
 		});
 		it('should return true for empty string', function() {
-			_.isEmpty('');
+			_.isEmpty('').should.equal(true);
 		});
 		it('should return false for object with key', function() {
-			_.isEmpty({a: 1});
+			_.isEmpty({a: 1}).should.equal(false);
 		});
 		it('should return false for array with item', function() {
-			_.isEmpty([1]);
+			_.isEmpty([1]).should.equal(false);
 		});
 		it('should return false for string with length > 0', function() {
-			_.isEmpty('a');
+			_.isEmpty('a').should.equal(false);
 		});
 		it('should return false for zero', function() {
-			_.isEmpty(0);
+			_.isEmpty(0).should.equal(false);
 		});
 	});
 

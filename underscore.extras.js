@@ -167,7 +167,8 @@ define('underscore.extras', [
     isEmpty: function(obj) {
       return !!(obj === undefined || obj === null ||
         (_.isObject(obj) && !_.keys(obj).length) ||
-        (_.isString(obj) && !obj.length));
+        (_.isString(obj) && !obj.length)) ||
+        !_.isNumber(obj);
     },
 
     // give a base object and string with dot delimited namespace. Will return
