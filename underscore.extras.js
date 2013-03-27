@@ -165,9 +165,9 @@ define('underscore.extras', [
 
     // returns if an object is empty or doesn't exist
     isEmpty: function(obj) {
-      return !!(obj === undefined || obj === null ||
+      return obj === undefined || obj === null ||
         (_.isObject(obj) && !_.keys(obj).length) ||
-        (_.isString(obj) && !obj.length));
+        (_.isString(obj) && !obj.length);
     },
 
     // give a base object and string with dot delimited namespace. Will return
