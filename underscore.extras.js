@@ -13,6 +13,7 @@ define('underscore.extras', [
 
   var id = 1;
   var toArray = _.toArray;
+  var pairs = _.pairs;
 
   _.mixin({
 
@@ -281,6 +282,44 @@ define('underscore.extras', [
         results[index] = iterator.call(context, value, index, list);
       });
       return results;
+    },
+
+    // test two arrays for equality, optional levels for how deep to test (e.g. Infinity)
+    arrayEquals: function(a, b, levels) {
+      return a.length == b.length && _.all(a, function(a, i) {
+        return levels ? _.equals(b[i], a, levels - 1) : b[i] == a;
+      });
+    },
+
+    // test two objects for equality, optional levels for how deep to test (e.g. Infinity)
+    equals: function(a, b, levels) {
+      levels = levels || 0;
+      if (a == b)
+        return true;
+      if (_.isArray(a) && _.isArray(b))
+        return _.arrayEquals(a, b, levels);
+      if (_.isObject(a) && _.isObject(b))
+        return _.arrayEquals(_.pairs(a), _.pairs(b), levels + 1);
+      return false;
+    },
+
+    // sort the pairs array from an object by keys
+    pairs: function(obj) {
+      return pairs(obj).sort(function(a, b) {
+        return _.strCmp(a[0], b[0]);
+      });
+    },
+
+    // string compare for sort functions
+    strCmp: function(a, b) {
+      return a > b ? 1 : a < b ? -1 : 0;
+    },
+
+    // return a new function that negates the return value
+    negate: function(fn) {
+      return function() {
+        return !fn.apply(this, _.toArray(arguments));
+      };
     }
 
   });

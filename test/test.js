@@ -475,4 +475,61 @@ define(['chai', 'underscore', 'underscore.extras'], function(chai) {
 		});
 	});
 
+	describe('_.arrayEquals', function() {
+		it('should work for simple cases', function() {
+			var result = _.arrayEquals([1,2], [1,2]);
+			result.should.be.true;
+		});
+		it('should return false for different order', function() {
+			var result = _.arrayEquals([1,2], [2,1]);
+			result.should.be.false;
+		});
+		it('should return false for shallow tests', function() {
+			var result = _.arrayEquals([{}], [{}]);
+			result.should.be.false;
+		});
+		it('should return true for deep tests', function() {
+			var result = _.arrayEquals([{},[]], [{},[]], Infinity);
+			result.should.be.true;
+		});
+	});
+
+	describe('_.equals', function() {
+		it('should work for simple cases', function() {
+			var result = _.equals(1, 1);
+			result.should.be.true;
+		});
+		it('should return false for sinple fails', function() {
+			var result = _.equals(1, 2);
+			result.should.be.false;
+		});
+		it('should return false for shallow tests', function() {
+			var result = _.equals({0:{}}, {0:{}});
+			result.should.be.false;
+		});
+		it('should return true for deep tests', function() {
+			var result = _.equals({0:{}}, {0:{}}, Infinity);
+			result.should.be.true;
+		});
+	});
+
+	describe('_.pairs', function() {
+		it('should return in order of keys', function() {
+			var obj = {};
+			obj['b'] = 1;
+			obj['a'] = 1;
+			var result = _.pairs(obj);
+			result[0][0].should.equal('a');
+		});
+	});
+
+	describe('negate', function() {
+		it('should negate a true return', function() {
+			var t = function(){return true;};
+			var f = _.negate(t);
+			var result = f();
+			result.should.equal.false;
+		});
+	});
+
 });
