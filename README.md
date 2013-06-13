@@ -52,7 +52,7 @@ will push the value on to the object[string] array and create one if it doesn't 
 
 ### put(object, string, value) ###
 
-will remove object[string] is value is undefined, else will put it on the object
+will remove object[string] is value is undefined, else will put it on the object, string can be a dot delimitted namespace
 
 ### get(string, object, *item) ###
 
@@ -82,7 +82,7 @@ return a function that will pass in it's context as the first value to the given
 
 only run the function with given context if object is not undefined.
 
-### call(string|function, object) ###
+### callOn(string|function, object) ###
 
 call the function (or object[string]) from the context of object if object exists
 
@@ -105,3 +105,20 @@ just like _.delay but the last parameter is an optional context for the function
 ### map(object, function, *object) ###
 
 extends underscore map to also work with objects (will return an object with the values mapped if an object is used);
+
+# changelog
+
+##v1.2.0
+
+_.put can take in a namespace
+
+##v1.1.0
+
+change _.invoke to _.callOn
+
+##v1.0.1
+
+- change check for undefined to loose check for null
+
+##v1.0.0
+-initial versioning

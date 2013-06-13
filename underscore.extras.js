@@ -1,3 +1,5 @@
+// V1.2.0
+
 // ==========================================
 // Copyright 2013 Dataminr
 // Licensed under The MIT License
@@ -5,14 +7,16 @@
 // work derived from https://github.com/rhysbrettbowen/PlastronJS
 // ==========================================
 
-// V0.1.0
-
-define('underscore.extras', [
+define([
   'underscore'
 ], function(_) {
 
   var id = 1;
-  var toArray = _.toArray;
+  var toArray = function(obj) {
+    if (!obj) return [];
+    if (obj.length === +obj.length) return [].slice.call(obj);
+    return _.values(obj);
+  };
   var pairs = _.pairs;
 
   _.mixin({
@@ -107,22 +111,22 @@ define('underscore.extras', [
           return fn.apply(this, args);
         var ind = 0;
         _.each(arguments, function(arg) {
-          if (arg === undefined) {
-            while (newArgs[ind++] !== undefined) {}
+          if (arg == null) {
+            while (newArgs[ind++] != null) {}
           } else {
-            while (newArgs[ind] !== undefined)
+            while (newArgs[ind] != null)
               ind++;
             newArgs[ind] = arg;
           }
         });
         var newArgsLength = _.filter(newArgs, function(arg) {
-          return arg !== undefined;
+          return arg != null;
         }).length;
         if (opt_minLength <= newArgsLength) {
           return fn.apply(this, newArgs);
         }
         return _.curry.apply(this,
-          [fn].concat(opt_minLength !== undefined ?
+          [fn].concat(opt_minLength != null ?
           opt_minLength - newArgsLength : undefined, newArgs));
       };
       return curried;
@@ -130,7 +134,7 @@ define('underscore.extras', [
 
     // push to an array in an object and create one if it doesn't exist
     push: function(obj, key, value) {
-      if (value !== undefined) {
+      if (value != null) {
         if (!obj[key])
           obj[key] = [];
         obj[key].push(value);
@@ -139,10 +143,24 @@ define('underscore.extras', [
 
     // put a key/value pair in an object if the value is defined
     put: function(obj, key, value) {
-      if (obj[key] && value === undefined)
-        delete obj[key];
-      else if (value !== undefined)
-        obj[key] = value;
+      if (obj == null)
+        throw new Error('no object passed in');
+      if (_.isEmpty(key))
+        throw new Error('no key given');
+      var names = key.split('.');
+      while (names.length > 1) {
+        var name = names.shift();
+        if (obj[name] == null) {
+          obj[name] = {};
+        }
+        obj = obj[name];
+      }
+      if (value == null) {
+        delete obj[names[0]];
+      } else {
+        obj[names[0]] = value;
+      }
+      return obj;
     },
 
     // gets a value given a key and object
@@ -166,7 +184,7 @@ define('underscore.extras', [
 
     // returns if an object is empty or doesn't exist
     isEmpty: function(obj) {
-      return obj === undefined || obj === null ||
+      return obj == null ||
         (_.isObject(obj) && !_.keys(obj).length) ||
         (_.isString(obj) && !obj.length);
     },
@@ -176,15 +194,15 @@ define('underscore.extras', [
     exist: function(obj, namespace, backup) {
       if (!obj) return;
       var names = namespace.split('.').reverse();
-      while(names.length && (obj = obj[names.pop()]) !== undefined);
-      return( obj === undefined ? backup : obj);
+      while(names.length && (obj = obj[names.pop()]) != null);
+      return( obj == null ? backup : obj);
     },
 
     // call a function on an object and set the object to the result
     inPlace: function(obj, namespace, fn) {
       if (!obj) return;
       var names = namespace.split('.').reverse();
-      while(names.length > 1 && (obj = obj[names.pop()]) !== undefined);
+      while(names.length > 1 && (obj = obj[names.pop()]) != null);
       if (!obj || !obj[names[0]])
         return;
       if (_.isString(fn)) {
@@ -206,13 +224,13 @@ define('underscore.extras', [
 
     // if an object exists pass it to a function
     canUse: function(obj, fn, ctx) {
-      if (obj === undefined)
+      if (obj == null)
         return;
       return fn.call(ctx || this, obj);
     },
 
     // call a function from the context of an object
-    invoke: function(fn, obj) {
+    callOn: function(fn, obj) {
       var args = _.toArray(arguments, 2);
       if (obj == null)
         return;
@@ -227,7 +245,7 @@ define('underscore.extras', [
       var args = _.toArray(arguments, 2);
       return function() {
         var args2 = args.concat(_.toArray(arguments));
-        return _.invoke.apply(this, [fn, obj].concat(args2));
+        return _.callOn.apply(this, [fn, obj].concat(args2));
       };
     },
 
@@ -245,7 +263,7 @@ define('underscore.extras', [
 
     // add on slice variables to the underscore toArray
     toArray: function(arr, start, end) {
-      return toArray(arr).slice(start, end);
+      return [].slice.call(toArray(arr), start || 0, end);
     },
 
     // only give the first x arguments to a function
@@ -282,6 +300,21 @@ define('underscore.extras', [
         results[index] = iterator.call(context, value, index, list);
       });
       return results;
+    },
+
+    isArguments: function(obj) {
+      return obj && !!obj.callee;
+    },
+
+    createTest: function(test) {
+      var ret = function() {
+        return _.all(arguments, function(val) {
+          return _.isArguments(val) ?
+            ret.apply(_, _.toArray(val)) :
+            test(val);
+        });
+      };
+      return ret;
     },
 
     // test two arrays for equality, optional levels for how deep to test (e.g. Infinity)
@@ -322,6 +355,14 @@ define('underscore.extras', [
       };
     }
 
+  });
+
+  _.mixin({
+    isNotEmpty: _.negate(_.isEmpty)
+  });
+
+  _.mixin({
+    argsExist: _.createTest(_.isNotEmpty)
   });
 
 });
